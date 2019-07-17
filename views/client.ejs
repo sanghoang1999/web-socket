@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="/client.css">
+  <title>Document</title>
+  <script src="/bootstrap/vue.js"></script>
+  <script src="/bootstrap/socket-io-client.js"></script>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+<body>
+        <div id="app">
+            <template v-if="change==0">
+                <div  class="chat-wrapper">
+                    <div class="chat-container" >
+                        <div v-if="image==0" class="chat-img">
+                          <img src="/images/chatbox2.png"  alt="" @click="change+=1">
+                          <div class="close" @click="image+=1"><i class="fa fa-times" aria-hidden="true"></i></div>
+                        </div>  
+                        <div class="chat-message"  @click="change+=1">
+                          <div class="chat-test">Chat với shop nhé !</div>
+                          <div class="chat-notification"><div class="noti">1</div></div>
+                        </div>
+                      </div>
+                </div>
+            </template>
+            <template v-else>
+                <div  class=" chatbox-wrapper">
+                    <div class="chatbox-container">
+                      <div class="chat-header">
+                          <h4>Hỗ Trợ Khách Hàng</h4>
+                          <div class="chat-change" @click="change-=1" ><i class="fa fa-times" aria-hidden="true"></i></div>
+                      </div>
+                      <div v-if="sub==null" class="push-notification">
+                          <div class="mess-notification">Bạn chưa đăng ký nhận thông báo trên trình duyệt khi bạn có tinh nhắn mới</div>
+                          <span class="get-notification" @click="sub=1" onclick="main()" >Nhận thông báo</span>
+                        </div>
+                      <div class="chatbox-feed" v-on:click="change+=1">
+                        <ul ref="feed"> 
+                          <li v-for="msg of messages "  :class="`${msg.from==='admin' ? 'received' : 'sent' }`" >
+                            <div class="msg-wrapper">
+                              <div v-if="msg.from==='admin'" class="admin"><i class="fa fa-user" aria-hidden="true"></i></div>
+                              <div class="text">{{msg.message}}</div>
+                            </div>
+                          </li>
+                          <li v-if="isTyping" class="received">
+                              <div class="msg-wrapper">
+                                  <div class="admin"><i class="fa fa-user" aria-hidden="true"></i></div>
+                                  <div class="typing-indicator">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                  </div>
+                                </div>
+                          </li>              
+                       </ul>
+                      </div>
+                      <div  class="textarea-container">
+                          <textarea v-model="message"  @keydown="typing" placeholder="Gõ vào đây và nhấn enter..."  @keydown.enter="send" @keydown.enter="scrollToBottom"></textarea>
+                          <div class="paper-send"><i class="fa fa-paper-plane" aria-hidden="true" @click="send" ></i></div>
+                      </div>
+                    </div>
+                </div>
+            </template>
+            <div v-if="change==0" class="mobile-chat-wrapper">
+                <div class="mobile-chat" @click="change+=1" >
+                  <i class="fa fa-comment" aria-hidden="true"></i>
+                  <div class="mobile-text">Chat ngay</div>
+                </div>
+              </div>
+        </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+    <script src="/client.js"></script>
+    <script src="push_notification.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/admin.css">
+  <title>Document</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
+</head>
+<body>
+    <div style="height:20%;width: 100%;background: #79b643">
+        <div style="font-size:20px">cục này là menu trang nội thất</div>
+    </div>
+    <div style="height:80%;width: 100%">
+        <div id="app"  >
+            <div class=" chatbox ">
+                <div class="list" style="padding: 0">
+                    <div class="list-user">
+                        <ul  >
+                            <template v-for>
+                                <div class="client" :class="{'selected' :(selectedUser==client.client_id )}" v-for="(client,index) in clients ">
+                                    <li @click="selectUser(client)">{{client.client_id}}</li>
+                                    <div @click="selectUser(client)" class="client-icon"><i class="fa fa-user" aria-hidden="true"></i></div>
+                                    <div v-if="client.isOnline" class="online"></div>
+                                    <div v-else  class="offline"></div>
+                                    <div v-if="client.unread!=0" class="notification">
+                                        <div  class="notifi-msg">{{client.unread}}</div>
+                                    </div>
+                                </div>
+                            </template>
+                        </ul>
+                    </div>
+                </div>
+                <div class=" conver-wrapper" style="padding:0">
+                    <div class="conversation">
+                        <template v-if="selectedUser">
+                                <div  class="title">
+                                        <h4 >{{selectedUser.client_id}}</h1>
+                                    </div>
+                                    <div class="msg-feed"  ref='feed' >
+                                        <ul>              
+                                            <li v-for="msg of messages " :class="`${msg.from==='admin' ? 'sent' : 'received' }`" >
+                                                <div class="msg-wrapper">
+                                                    <div v-if="msg.from!='admin'" class="admin"><i class="fa fa-user" aria-hidden="true"></i></div>
+                                                    <div class="text">{{msg.message}}</div>
+                                                </div>
+                                            </li>
+                                            <li v-if="isTyping" class="received">
+                                                <div class="msg-wrapper">
+                                                    <div class="admin"><i class="fa fa-user" aria-hidden="true"></i></div>
+                                                    <div class="typing-indicator">
+                                                      <span></span>
+                                                      <span></span>
+                                                      <span></span>
+                                                    </div>
+                                                  </div>
+                                            </li>                       
+                                        </ul>
+                                        
+                                    </div>
+                                    <textarea  @keydown="typing" v-if="selectedUser" v-model='message' @keydown.enter="send" ></textarea>
+                                    <div v-if="selectedUser" class="paper-send"><i class="fa fa-paper-plane" aria-hidden="true" @click="send" ></i></div>
+                                </div>
+                        </template>
+                </div>
+                
+            </div>  
+    </div>
+            
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="/admin.js"></script>
+</body>
+</html>
