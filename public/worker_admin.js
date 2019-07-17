@@ -1,4 +1,4 @@
-
+console.log('worker admin');
 
 const showLocalNotification = (title, body, swRegistration) => {
   const options = {
@@ -17,19 +17,17 @@ self.addEventListener('push', function(event) {
   event.waitUntil(clients.matchAll({
     type: "window"
   }).then(function(clientList) {
-      if(clientList.length==0) {   
         if (event.data) {
           console.log(event.data.json());
           showLocalNotification(event.data.json().title,event.data.json().body,self.registration);
         } else {
           console.log('Push event but no data')
         }
-      }
   })); 
 })
 self.addEventListener('notificationclick',(event)=> {
   console.log('cc');
   event.waitUntil(
-    clients.openWindow("http://localhost:4000/client")
+    clients.openWindow("http://localhost:4000/admin")
   )
 })

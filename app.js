@@ -1,6 +1,7 @@
 var express = require('express');
 var session = require('express-session');
 var Subscription =require('./models/subscription');
+var SubscriptionAdmin = require('./models/subscription_admin');
 var MongoStore = require('connect-mongo')(session);
 var sharedsession  =require('express-socket.io-session');
 var webpush = require('web-push');
@@ -66,6 +67,11 @@ var group = io.of('/admin/group');
 
 group.use(sharedsession(ss));
 const ObjectId = mongoose.Types.ObjectId;
+
+
+const publicVapidKey='BOcmC7yJxUlAD1fLLc5YIGTL8CtITy0LQhLOCDkFuJcL5YJ48-13_cthCsBDYpRQiORiybHh4FNQBM-MSAGfZL4';
+const privateVapidKey='L_e8AQM5Bv41bsSANBDgZ4ZYvmppzB-Co_c0b1vEqgE';
+webpush.setVapidDetails('mailto:sang.hoang.1999@hcmut.edu.vn',publicVapidKey,privateVapidKey);
 
 
 client.on('connection',function(socket) {
@@ -141,11 +147,27 @@ client.on('connection',function(socket) {
         callback();
     })
    })
+   socket.on('sendNotification',function(admin_id,message) {
+    console.log('client send noti');
+    SubscriptionAdmin.findOne({admin_id:admin_id}).sort({_id:-1}).then(data=>{
+        console.log(data);
+        const payload = JSON.stringify({
+            title:'Một khách hàng đã gữi tin nhắn',
+            body:message,
+        });
+      
+        //Pass object into sendNotification
+        subscription=JSON.parse(data.supscription)
+        webpush.sendNotification(subscription,payload).then(data=> {
+            console.log(data);
+        }).catch(err=> {
+          console.error(err);
+        })
+    })
+   })
 })
 
-const publicVapidKey='BOcmC7yJxUlAD1fLLc5YIGTL8CtITy0LQhLOCDkFuJcL5YJ48-13_cthCsBDYpRQiORiybHh4FNQBM-MSAGfZL4';
-const privateVapidKey='L_e8AQM5Bv41bsSANBDgZ4ZYvmppzB-Co_c0b1vEqgE';
-webpush.setVapidDetails('mailto:sang.hoang.1999@hcmut.edu.vn',publicVapidKey,privateVapidKey);
+
 
 
 admin.on('connection',function(socket) {
@@ -213,6 +235,15 @@ admin.on('connection',function(socket) {
             }).catch(err=> {
               console.error(err);
             })
+        })
+    })
+    socket.on('sendSubscription',function(admin_id,data,callback) {
+        var subscriptionData = JSON.stringify(data);
+        var subscription =new SubscriptionAdmin({admin_id:admin_id,supscription:subscriptionData});
+        subscription.save((err,data) => {
+            if(err) throw err;
+            console.log(data);
+            callback();
         })
     })
 })

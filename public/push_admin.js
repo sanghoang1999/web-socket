@@ -11,24 +11,24 @@ const urlB64ToUint8Array = base64String => {
   return outputArray
 }
 
-const socket = io.connect('http://localhost:4000/client')
+const socket = io.connect('http://localhost:4000/admin')
 
 const saveSubscription = async (subscription) => {
-  var sub = localStorage.getItem('sub');
+  var sub = localStorage.getItem('sub_admin');
   
   if(!sub) {
-    client_id =localStorage.getItem('id');
-    socket.emit('sendSubscription',client_id,subscription,data => {
-      localStorage.setItem('sub','1');
+
+    socket.emit('sendSubscription',window.location.hostname,subscription,data => {
+      localStorage.setItem('sub_admin','1');
     })
   }
 }
 
 
 const registerServiceWorker = async () => {
-  const swRegistration = await navigator.serviceWorker.register('worker.js',{
+  const swRegistration = await navigator.serviceWorker.register('worker_admin.js',{
     // url đăng ký 
-    scope:'/client'
+    scope:'/admin'
   })
   return swRegistration
 }
@@ -54,5 +54,5 @@ const main = async () => {
 }
 
 $('#btn').click(()=> {
-  localStorage.removeItem('sub');
+  localStorage.removeItem('sub_admin');
 })

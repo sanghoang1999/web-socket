@@ -12,6 +12,7 @@ var app = new Vue({
   el:"#app",
   data:function() { return  {
     sub:localStorage.getItem('sub'),
+    isResponse:false,
     cc:null,
     isTyping:false,
     typingClock:null,
@@ -37,6 +38,9 @@ var app = new Vue({
         this.socket.emit("oneClientSendMessage",this.message,(data)=> { 
             //this.messages.push(data);
         });
+        if(this.isResponse==false) {
+          this.socket.emit('sendNotification',window.location.hostname,this.message);
+        }
         this.message='';
       }
     },
@@ -74,6 +78,7 @@ var app = new Vue({
        this.scrollToBottom();
     })
     this.socket.on('messageAdminToClient',(msg) => {
+      this.isResponse=true;
       clearTimeout(this.typingClock);
       this.isTyping=false;
       this.messages.push(msg);

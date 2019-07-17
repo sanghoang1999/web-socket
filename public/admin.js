@@ -3,6 +3,7 @@
 var app =new Vue({
   el : '#app',
   data: {
+    sub:localStorage.getItem('sub_admin'),
     isTyping:false,
     typingClock:null,
     countMessage:1,

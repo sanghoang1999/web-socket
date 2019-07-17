@@ -313,6 +313,27 @@ textarea::placeholder {
   padding:17px 0 0 10px;
   color: #0000005e;
 }
+.push-notification {
+  width: 100%;
+  background: #85cf2f;
+  color: white;
+  z-index: 100;
+  font-size: 14px;
+  padding: 2px 0 6px 5px;
+}
+
+span.get-notification {
+    margin-left: 5px;
+    background: #FF9800;
+    border-radius: 10px;
+    padding: 1px 7px;
+    cursor: pointer;
+}
+
+.mess-notification {
+    display: inline;
+}
+
 @media screen and (max-width: 480px) {
   .row.login {
     display: none;
