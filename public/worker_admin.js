@@ -27,7 +27,15 @@ self.addEventListener('push', function(event) {
 })
 self.addEventListener('notificationclick',(event)=> {
   console.log('cc');
-  event.waitUntil(
-    clients.openWindow("http://localhost:4000/admin")
-  )
+  event.waitUntil(clients.matchAll({
+    type: "window"
+  }).then(function(clientList) {
+    for (var i = 0; i < clientList.length; i++) {
+      var client = clientList[i];
+      if (client.url == 'http://localhost:4000/admin' && 'focus' in client)
+        return client.focus();
+    }
+    if (clients.openWindow)
+      return clients.openWindow('http://localhost:4000/admin');
+  }));
 })
