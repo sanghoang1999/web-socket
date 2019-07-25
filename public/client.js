@@ -11,6 +11,7 @@
 var app = new Vue({
   el:"#app",
   data:function() { return  {
+    adminHostName:'sanghoangweb.000webhostapp.com',
     sub:localStorage.getItem('sub'),
     isResponse:false,
     cc:null,
@@ -35,11 +36,11 @@ var app = new Vue({
     send(e) {
       e.preventDefault();
       if(this.message!="") {
-        this.socket.emit("oneClientSendMessage",this.message,(data)=> { 
+        this.socket.emit("oneClientSendMessage",this.message,window.location.hostname,(data)=> { 
             //this.messages.push(data);
         });
         if(this.isResponse==false) {
-          this.socket.emit('sendNotification',window.location.hostname,this.message);
+          this.socket.emit('sendNotification',this.adminHostName,this.message);
         }
         this.message='';
       }
@@ -59,6 +60,7 @@ var app = new Vue({
     }
   },
   mounted:function() {
+    this.socket.emit('selectDb',window.location.hostname);
     this.socket.on('AdminTyping',()=> {
       this.isTyping=true;
       if(this.typingClock) clearTimeout(this.typingClock);

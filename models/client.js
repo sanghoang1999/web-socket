@@ -6,6 +6,7 @@ var clientSchema=mongoose.Schema({
     default:true,
   },
   client_id:String,
+  hostname:String,
   unread:{
     type:Number,
     default:0,

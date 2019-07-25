@@ -27,7 +27,7 @@ var app =new Vue({
     send(e) {
       e.preventDefault();
       if(this.message!='') {
-        this.socket.emit('messageAdminToClient',this.message,this.selectedUser.client_id,(msg) => {
+        this.socket.emit('messageAdminToClient',this.message,this.selectedUser.client_id,window.location.hostname,(msg) => {
           this.messages.push(msg);
           this.scrollToBottom();
           if(!this.selectedUser.isOnline) {
@@ -53,31 +53,37 @@ var app =new Vue({
       this.socket.emit('chooseClientToChat',this.selectedUser.client_id);
     },
     scrollToBottom() {
-      setTimeout(() => {
-           this.$refs.feed.scrollTop = this.$refs.feed.scrollHeight;
-      },50)
+      if(this.$refs.feed) {
+        setTimeout(() => {
+          this.$refs.feed.scrollTop = this.$refs.feed.scrollHeight;
+     },50)
+      }
     },
     typing() {
       this.socket.emit('AdminTyping',this.selectedUser.client_id);
     }
    
   },
+  created() {
+    this.socket.emit('hostname',window.location.hostname);
+  },
   mounted: function() {
-    this.socket.on('clientDisconnect',(clientId)=> {
-      this.clients=this.clients.map(client=>{
-        if(client.client_id!=clientId) {
-          return client;
-        }
-        client.isOnline=false;
-        return client;
-      })
-    })
+    
     this.socket.on('clientConnected',(clientId)=> {
       this.clients=this.clients.map(client=>{
         if(client.client_id!=clientId) {
           return client;
         }
         client.isOnline=true;
+        return client;
+      })
+    })
+    this.socket.on('clientDisconnect',(clientId)=> {
+      this.clients=this.clients.map(client=>{
+        if(client.client_id!=clientId) {
+          return client;
+        }
+        client.isOnline=false;
         return client;
       })
     })

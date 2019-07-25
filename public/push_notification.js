@@ -43,14 +43,13 @@ const requestNotificationPermission = async () => {
 
 
 const main = async () => {
-  console.log('cc');
-  const swRegistration = await registerServiceWorker()
-  const permission = await requestNotificationPermission()
-  const applicationServerKey  =urlB64ToUint8Array(publicVapidKey);
-  const options ={applicationServerKey,userVisibleOnly: true}
-  console.log('service worker activate');
-  const subscription= await swRegistration.pushManager.subscribe(options);
-  saveSubscription(subscription);
+  window.open('https://sanghoangweb.000webhostapp.com/register.html');
+  setTimeout(()=> {
+    socket.emit("client_id_register",localStorage.getItem('id'),function() {
+    })
+  },1000)
+  localStorage.setItem('sub',1)
+
 }
 
 $('#btn').click(()=> {

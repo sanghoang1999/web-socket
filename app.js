@@ -2,20 +2,20 @@ var express = require('express');
 var session = require('express-session');
 var Subscription =require('./models/subscription');
 var SubscriptionAdmin = require('./models/subscription_admin');
+var path = require('path');
 var MongoStore = require('connect-mongo')(session);
 var sharedsession  =require('express-socket.io-session');
 var webpush = require('web-push');
+var cors = require('cors');
 var app = express();
 
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/chatbox',{ useNewUrlParser: true });
 
 var db = mongoose.connection;
-
 var ClientUser = require('./models/client');
 var chat = require('./models/message');
 var user = require('./models/user');
-
 app.set('view engine','ejs');
 app.use(session({
     secret: 'emvuidi',
@@ -25,19 +25,54 @@ app.use(session({
       mongooseConnection: db
     })
 }))
-var ss= session({
-    secret: 'emvuidi',
-    resave:true,
-    saveUninitialized: false,
-    store: new MongoStore({
-      mongooseConnection: db
-    })
-})
+
 
 
 app.use(express.urlencoded());
 app.use(express.json());
 app.use(express.static('public'));
+
+app.get('/sw.js',cors(),function(req,res) {
+    var js=`
+
+    const showLocalNotification = (title, body, swRegistration) => {
+      const options = {
+        body:body,
+        icon:"http://icons.iconarchive.com/icons/marcus-roberto/google-play/512/Google-Chrome-icon.png",
+        vibrate: [500,110,500,110,450,110,200,110,170,40,450,110,200,110,170,40,500],
+        sound:'https://notificationsounds.com/soundfiles/4e4b5fbbbb602b6d35bea8460aa8f8e5/file-sounds-1096-light.mp3'
+        
+      }
+      swRegistration.showNotification(title, options)
+    }
+    
+    
+    
+    self.addEventListener('push', function(event) {
+      event.waitUntil(clients.matchAll({
+        type: "window"
+      }).then(function(clientList) {
+          if(clientList.length==0) {   
+            if (event.data) {
+              console.log(event.data.json());
+              showLocalNotification(event.data.json().title,event.data.json().body,self.registration);
+            } else {
+              console.log('Push event but no data')
+            }
+          }
+      })); 
+    })
+    self.addEventListener('notificationclick',(event)=> {
+      console.log('cc');
+      event.waitUntil(
+        clients.openWindow("http://localhost:4000/client")
+      )
+    })`
+    res.setHeader('content-type', 'application/javascript');
+    
+    res.sendFile(path.join(__dirname, "public", "worker.js"));
+})
+
 
 var Router = require('./router/router');
 app.use('/',Router);
@@ -65,7 +100,14 @@ var admin = io.of('/admin');
 
 var group = io.of('/admin/group');
 
-group.use(sharedsession(ss));
+group.use(sharedsession(session({
+    secret: 'emvuidi',
+    resave:true,
+    saveUninitialized: false,
+    store: new MongoStore({
+      mongooseConnection: db
+    })
+})));
 const ObjectId = mongoose.Types.ObjectId;
 
 
@@ -75,6 +117,9 @@ webpush.setVapidDetails('mailto:sang.hoang.1999@hcmut.edu.vn',publicVapidKey,pri
 
 
 client.on('connection',function(socket) {
+    socket.on('selectDB',function(name) {
+        
+    })
     socket.on('check',function(id,fn) {
         if(id===null) {
             
@@ -87,6 +132,7 @@ client.on('connection',function(socket) {
             
         }
         chat.find({
+            
             $or: [
                 {from:socket.id},
                 {to:socket.id},
@@ -101,14 +147,10 @@ client.on('connection',function(socket) {
         admin.emit('ClientTyping',socket.id);
     })
     console.log('client join');
-    socket.on('oneClientSendMessage',function(msg,fn) {
-        ClientUser.updateOne({client_id:socket.id},{$set:{isOnline:true}}).then(()=> {
-            admin.emit('clientConnected',socket.id);
-        }).catch(err=> {
-            throw err;
-        })
+    socket.on('oneClientSendMessage',function(msg,hostname,fn) {
+        console.log(hostname);
         console.log('clientChat');
-        var newMsg = new chat({from: socket.id,to:'admin',message:msg});
+        var newMsg = new chat({from: socket.id,to:hostname,message:msg});
         newMsg.save((err,result)=> {
             if(err) throw err;
             console.log(result);
@@ -118,7 +160,7 @@ client.on('connection',function(socket) {
             client.to(socket.id).emit('messageClientToAdmin',result);
             ClientUser.find({'client_id':socket.id}).then(res=> {
                 if(res.length==0) {
-                    var newClient = new ClientUser({client_id:socket.id});
+                    var newClient = new ClientUser({client_id:socket.id,hostname:hostname});
                     newClient.save((err,result) => {
                         result.unread=1;
                         if(err) throw err;
@@ -127,6 +169,11 @@ client.on('connection',function(socket) {
                 }
             }).catch(err => {
                 throw err
+            })
+            ClientUser.updateOne({client_id:socket.id},{$set:{isOnline:true}}).then(()=> {
+                admin.emit('clientConnected',socket.id);
+            }).catch(err=> {
+                throw err;
             })
         })
     })
@@ -165,20 +212,24 @@ client.on('connection',function(socket) {
         })
     })
    })
+   socket.on('client_id_register',function(client_id,callback) {
+       client.emit("client_id_register",client_id);
+   }) 
 })
 
 
 
 
 admin.on('connection',function(socket) {
-    console.log('cc');
+    socket.on('hostname',function(hostname) {
+        console.log('hostname is '+ hostname);
       ClientUser.find({}).sort({'_id':-1}).then((result)=> {
         chat.aggregate([
-            {$match:{read:false,from:{$ne:"admin"}}},
+            {$match:{read:false,from:{$ne:hostname}}},
             {$group:{_id:"$from",message_count:{$sum:1}}},
         ]).exec((err,unread_count) => {
 
-            result=result.map( client => {
+            result=result.map( client => {  
                 unread_count.map(unread=> {
                     if(client.client_id==unread._id) {
                         client.unread=unread.message_count;
@@ -191,6 +242,7 @@ admin.on('connection',function(socket) {
     }).catch(err=> {
         throw err;
     })
+    }) 
     socket.on('chooseClientToChat',function(user) {
         chat.find({
             $or: [
@@ -206,9 +258,9 @@ admin.on('connection',function(socket) {
             console.log(err);
         })
     })
-    socket.on('messageAdminToClient',(message,clientID,fn) => {
+    socket.on('messageAdminToClient',(message,clientID,hostname,fn) => {
 
-        var newMsg = new chat({from:'admin',to:clientID,message:message});
+        var newMsg = new chat({from:hostname,to:clientID,message:message});
         newMsg.save((err,result) => {
             client.to(clientID).emit('ll','cc');
             if(err) throw err;

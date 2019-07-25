@@ -23,8 +23,8 @@
                     <div class="list-user">
                         <ul  >
                             <template v-for>
-                                <div class="client" :class="{'selected' :(selectedUser==client.client_id )}" v-for="(client,index) in clients ">
-                                    <li @click="selectUser(client)">{{client.client_id}}</li>
+                                <div class="client"  v-for="(client,index) in clients" :class="{'selected' :(selectedUser.client_id==client.client_id )}">
+                                    <li @click="selectUser(client)"  >{{client.client_id}}</li>
                                     <div @click="selectUser(client)" class="client-icon"><i class="fa fa-user" aria-hidden="true"></i></div>
                                     <div v-if="client.isOnline" class="online"></div>
                                     <div v-else  class="offline"></div>
@@ -39,41 +39,41 @@
                 <div class=" conver-wrapper" style="padding:0">
                     <div class="conversation">
                         <template v-if="selectedUser">
-                                <div  class="title">
-                                        <h4 >{{selectedUser.client_id}}</h1>
-                                    </div>
-                                    <div v-if="sub==null" class="push-notification">
-                                        <div class="mess-notification">Bạn chưa đăng ký nhận thông báo trên trình duyệt khi bạn có tinh nhắn mới</div>
-                                        <span class="get-notification" @click="sub=1" onclick="main()" >Nhận thông báo</span>
-                                      </div>
-                                    <div class="msg-feed"  ref='feed' >
-                                        <ul>              
-                                            <li v-for="msg of messages " :class="`${msg.from==='admin' ? 'sent' : 'received' }`" >
-                                                <div class="msg-wrapper">
-                                                    <div v-if="msg.from!='admin'" class="admin"><i class="fa fa-user" aria-hidden="true"></i></div>
-                                                    <div class="text">{{msg.message}}</div>
-                                                </div>
-                                            </li>
-                                            <li v-if="isTyping" class="received">
-                                                <div class="msg-wrapper">
-                                                    <div class="admin"><i class="fa fa-user" aria-hidden="true"></i></div>
-                                                    <div class="typing-indicator">
-                                                      <span></span>
-                                                      <span></span>
-                                                      <span></span>
-                                                    </div>
-                                                  </div>
-                                            </li>                       
-                                        </ul>
-                                        
-                                    </div>
-                                    <textarea  @keydown="typing" v-if="selectedUser" v-model='message' @keydown.enter="send" ></textarea>
-                                    <div v-if="selectedUser" class="paper-send"><i class="fa fa-paper-plane" aria-hidden="true" @click="send" ></i></div>
+                            <div class="title">
+                                <h4 >{{selectedUser.client_id}}</h1>
+                            </div>
+                            <div v-if="sub==null" class="push-notification">
+                                <div class="mess-notification">Bạn chưa đăng ký nhận thông báo trên trình duyệt khi bạn có tinh nhắn mới</div>
+                                <span class="get-notification" @click="sub=1" onclick="main()" >Nhận thông báo</span>
                                 </div>
+                            <div class="msg-feed"  ref='feed' >
+                                <ul>              
+                                    <li v-for="msg of messages " :class="`${msg.from===window.location.hostname ? 'sent' : 'received' }`" >
+                                        <div class="msg-wrapper">
+                                            <div v-if="msg.from!=window.location.hostname" class="admin"><i class="fa fa-user" aria-hidden="true"></i></div>
+                                            <div class="text">{{msg.message}}</div>
+                                        </div>
+                                    </li>
+                                    <li v-if="isTyping" class="received">
+                                        <div class="msg-wrapper">
+                                            <div class="admin"><i class="fa fa-user" aria-hidden="true"></i></div>
+                                            <div class="typing-indicator">
+                                                <span></span>
+                                                <span></span>
+                                                <span></span>
+                                            </div>
+                                            </div>
+                                    </li>                       
+                                </ul>
+                                
+                            </div>
+                            <textarea  @keydown="typing" v-if="selectedUser" v-model='message' @keydown.enter="send" ></textarea>
+                            <div v-if="selectedUser" class="paper-send"><i class="fa fa-paper-plane" aria-hidden="true" @click="send" ></i></div>
                         </template>
+                    </div>
                 </div>
                 
-            </div>  
+        </div>  
     </div>
             
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>

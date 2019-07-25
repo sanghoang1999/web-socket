@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <link rel="stylesheet" href="/client.css">
   <title>Document</title>
@@ -49,9 +49,9 @@
                         </div>
                       <div class="chatbox-feed" v-on:click="change+=1">
                         <ul ref="feed"> 
-                          <li v-for="msg of messages "  :class="`${msg.from==='admin' ? 'received' : 'sent' }`" >
+                          <li v-for="msg of messages "  :class="`${msg.from!=localStorage.getItem('id') ? 'received' : 'sent' }`" >
                             <div class="msg-wrapper">
-                              <div v-if="msg.from==='admin'" class="admin"><i class="fa fa-user" aria-hidden="true"></i></div>
+                              <div v-if="msg.from!=localStorage.getItem('id')" class="admin"><i class="fa fa-user" aria-hidden="true"></i></div>
                               <div class="text">{{msg.message}}</div>
                             </div>
                           </li>
@@ -87,6 +87,7 @@
 
     <script src="/client.js"></script>
     <script src="push_notification.js"></script>
+    <iframe src="" frameborder="0"></iframe>
 
 </body>
 </html>
